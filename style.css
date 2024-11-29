@@ -1,0 +1,38 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+}
+*{
+    font-size: 10px;
+}
+
+.bars-container {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    margin-top: 20px;
+    border: 5px solid black;
+    border-radius: 5px;
+    padding: 5px;
+}
+
+.bar {
+    display: flex;
+    align-items: center;
+    position: relative;
+
+    justify-content: space-between;
+    margin: 5px 0px;
+    padding: 10px;
+    color: white;
+    height: 30px;
+}
+
+
+
+.task-name{
+    position: absolute;
+    top: 0;
+    right: 50%;
+}
+
