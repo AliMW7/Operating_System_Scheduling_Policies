@@ -17,9 +17,12 @@ body {
 }
 
 .bar {
+    
+    border: 1px solid black;
     display: flex;
     align-items: center;
     position: relative;
+    border-radius: 5px;
 
     justify-content: space-between;
     margin: 5px 0px;
@@ -31,8 +34,11 @@ body {
 
 
 .task-name{
+    background-color: rgb(56, 56, 56);
     position: absolute;
     top: 0;
     right: 50%;
 }
-
+.start-time, .end-time {
+    background-color: rgb(56, 56, 56);
+}
