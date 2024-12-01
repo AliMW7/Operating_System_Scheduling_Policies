@@ -165,6 +165,7 @@ function drawSRTF(tasks) {
   let taskInProgress = null;
   let remainingTime = 0;
   let taskStartTime = 0; // Tracks the start time of tasks
+  let task_name_next = null;
 
   // Continue until all tasks are completed
   while (tasks.length > 0 || readyQueue.length > 0 || taskInProgress !== null) {
@@ -200,11 +201,25 @@ function drawSRTF(tasks) {
     }
 
     if (taskInProgress !== null) {
-      const [taskName, enterTime, timeNeeded, color, temp_remaining] =
-        taskInProgress;
-      const waitTime = time - enterTime - (temp_remaining - timeNeeded);
-      totalWaitTime += waitTime;
-      console.log(waitTime, time, enterTime, timeNeeded, taskName);
+      const [taskName, enterTime, timeNeeded, color, temp_remaining] = taskInProgress;
+      if (task_name_next !== null) {
+        if(task_name_next == taskName){}else{
+          task_name_next = taskName
+          const waitTime = time - enterTime - (temp_remaining - timeNeeded);
+          totalWaitTime += waitTime;
+    
+          //console.log(totalWaitTime,waitTime,time,enterTime, timeNeeded, taskName);
+        }
+
+      }else{
+        task_name_next = taskName
+          const waitTime = time - enterTime - (temp_remaining - timeNeeded);
+          totalWaitTime += waitTime;
+    
+          //console.log(totalWaitTime,waitTime,time,enterTime, timeNeeded, taskName);
+      }
+      
+      
 
       // Create a bar for each unit of task execution
       const barDiv = document.createElement("div");
@@ -269,6 +284,7 @@ function drawRR(tasks) {
 
     // Calculate wait time for this task (it has been waiting since it entered the queue)
     const waitTime = time - enterTime;
+    console.log(taskName, waitTime, timeNeeded)
     totalWaitTime += waitTime;
     waitTimes.set(taskName, (waitTimes.get(taskName) || 0) + waitTime);
 
