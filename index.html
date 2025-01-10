@@ -3,18 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FCFS Scheduling Visualization</title>
+    <title>Scheduling Visualization</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div>
         <input type="file" id="fileInput" accept=".csv">
-            <button onclick="processFile()">Process CSV</button>
+        <button onclick="processFile()">Process CSV</button>
         <div>
             <h1>FCFS</h1>
         </div>
         <div id="averageWaitTimeFCFS"></div>
         <div id="barsContainerFCFS" class="bars-container"></div>
+
+        <div style="border-top: 1px solid black; margin-top: 15px;">
+            <h1>HRRN</h1>
+        </div>
+        <div id="averageWaitTimeHRRN"></div>
+        <div id="barsContainerHRRN" class="bars-container"></div>
 
 
         <div style="border-top: 1px solid black; margin-top: 15px;">

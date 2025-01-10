@@ -36,6 +36,7 @@ async function processFile() {
   const file = input.files[0];
   const tasks = await readCsvFile(file);
   drawFCFS(tasks);
+  drawHRRN(tasks);
   drawSPN(tasks);
   drawRR(tasks);
   drawSRTF(tasks);
@@ -79,6 +80,76 @@ function drawFCFS(tasks) {
   const averageWaitTime = (totalWaitTime / tasks.length).toFixed(2);
   document.getElementById(
     "averageWaitTimeFCFS"
+  ).innerText = `Average Wait Time: ${averageWaitTime} time units`;
+}
+
+function drawHRRN(tasks) {
+  // Sort the tasks based on their enter time
+  tasks.sort((a, b) => a[1] - b[1]);
+
+  const barsContainer = document.getElementById("barsContainerHRRN");
+  barsContainer.innerHTML = ""; // Clear previous content
+
+  let time = 0;
+  let totalWaitTime = 0;
+  let completedTasks = 0;
+
+  while (tasks.length > 0) {
+    // Filter tasks that have entered the system (i.e., arrived)
+    const availableTasks = tasks.filter((task) => task[1] <= time);
+
+    if (availableTasks.length === 0) {
+      // If no tasks are available, jump to the time of the next task
+      time = tasks[0][1]; // Move time to the next task's enter time
+      continue;
+    }
+
+    // Calculate the response ratio for each available task
+    availableTasks.forEach((task) => {
+      const [taskName, enterTime, timeNeeded] = task;
+      const waitTime = time - enterTime;
+      task.responseRatio = (waitTime + timeNeeded) / timeNeeded; // Calculate HRRN
+    });
+
+    // Sort tasks by their response ratio (highest first)
+    availableTasks.sort((a, b) => b.responseRatio - a.responseRatio);
+
+    const currentTask = availableTasks[0]; // The task to run next
+    const [taskName, enterTime, timeNeeded, color] = currentTask;
+
+    // Calculate wait time for this task
+    const waitTime = time - enterTime;
+    totalWaitTime += waitTime;
+
+    // Set start and end times
+    const startTime = time; // Starts as current time
+    const endTime = startTime + timeNeeded;
+
+    // Create bar for the task
+    const barDiv = document.createElement("div");
+    barDiv.className = "bar";
+    barDiv.style.backgroundColor = color;
+    barDiv.style.width = timeNeeded * 50 + "px"; // Scale width
+
+    barDiv.innerHTML = `
+            <div class="start-time">${startTime}</div>
+            <div class="task-name">${taskName}</div>
+            <div class="end-time">${endTime}</div>
+        `;
+
+    barsContainer.appendChild(barDiv);
+
+    // Update time and remove task from the list
+    time = endTime;
+    tasks = tasks.filter((task) => task !== currentTask);
+    completedTasks++; // Increment the count of completed tasks
+  }
+
+  // Calculate average wait time only if there are completed tasks
+  const averageWaitTime =
+    completedTasks > 0 ? (totalWaitTime / completedTasks).toFixed(2) : 0;
+  document.getElementById(
+    "averageWaitTimeHRRN"
   ).innerText = `Average Wait Time: ${averageWaitTime} time units`;
 }
 
@@ -279,14 +350,14 @@ function drawRR(tasks) {
     }
 
     // Dequeue the next task to execute
-    const [taskName, enterTime, timeNeeded, color] = queue.shift();
-    const initialTimeNeeded = timeNeeded; // Save the original time needed for later calculation
+    const [taskName, enterTime, timeNeeded, color, realTimeNeeded] = queue.shift();
+    const initialTimeNeeded = realTimeNeeded; // Save the original time needed for later calculation
 
     // Calculate wait time for this task (it has been waiting since it entered the queue)
-    const waitTime = time - enterTime;
-    console.log(taskName, waitTime, timeNeeded)
-    totalWaitTime += waitTime;
-    waitTimes.set(taskName, (waitTimes.get(taskName) || 0) + waitTime);
+    //const waitTime = time - enterTime;
+    console.log(taskName, timeNeeded, realTimeNeeded)
+    //totalWaitTime += waitTime;
+    //waitTimes.set(taskName, (waitTimes.get(taskName) || 0) + waitTime);
 
     // Set the start and end times for this task's quantum
     const startTime = time;
@@ -309,10 +380,19 @@ function drawRR(tasks) {
 
     // Update time and check if this task is complete
     time = endTime;
+    if (timeNeeded == actualQuantum){
+      if (realTimeNeeded == null){
+        totalWaitTime += (endTime-timeNeeded-enterTime);
+      }else{
+      totalWaitTime += (endTime-realTimeNeeded-enterTime);}
+    }
 
     // If the task isn't finished, push it back into the queue with its remaining time
     if (timeNeeded > actualQuantum) {
-      queue.push([taskName, enterTime, timeNeeded - actualQuantum, color]); // Task goes back with reduced time
+      if(realTimeNeeded == null){
+        queue.push([taskName, enterTime, timeNeeded - actualQuantum, color, timeNeeded]);
+      }else{
+      queue.push([taskName, enterTime, timeNeeded - actualQuantum, color, realTimeNeeded]);} // Task goes back with reduced time
     } else {
       completedTasks++;
     }
